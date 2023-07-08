@@ -32,12 +32,12 @@ bool verifica_esistenza_due_foglie_info_val(albero a, int val);
 int altezza_albero(albero a);
 int conta_nodi(albero a);
 int conta_nodi_info_2(albero a);
-bool verifica_nodo_info_come_altezza(albero a, int altezza);
+bool verifica_nodo_info_come_altezza(albero a);
 int conta_nodi_interni(albero a);
 int profondo(albero a);
 bool verifica_nodo_info_dista_root(albero a);
 bool verifica_padri_due_foglie(albero a);
-int conta_nodi_info_prof_(albero a);
+int conta_nodi_info_prof(albero a);
 bool verifica_albero_completo(albero a);
 int somma_info_nodi(albero a);
 bool verifica_solo_figli_sx(albero a);
@@ -45,6 +45,7 @@ int conta_nodi_sx(albero a);
 bool verifica_gemelli(albero a);
 bool verifica_nodo_info_altezza(albero a, int h);
 bool verifica_foglia_info_altezza(albero a, int h);
+int conta_nodi_info_prof_ric(albero a, int p);
 
 #define MAX 20
 
@@ -56,6 +57,7 @@ int main(){
     for(int i = 0; i<MAX; i++){
         val[i] = (rand() % 100)+1;
     }
+    val[7] = 3;
 
     add_root(&t1, val[0]);
 
@@ -63,12 +65,12 @@ int main(){
     nodo* r = add_right(t1, val[2]);
     nodo* ll = add_left(l,val[3]);
     nodo* lr = add_right(l,val[4]);
-    nodo* rl = add_left(r,val[5]);
-//    nodo* rr = add_right(r,val[6]);
+//    nodo* rl = add_left(r,val[5]);
+    nodo* rr = add_right(r,val[6]);
     nodo* lll = add_left(ll,val[7]);
-//    nodo* llr = add_right(ll, val[8]);
+    nodo* llr = add_right(ll, val[8]);
     nodo* lrl = add_left(lr, val[9]);
-//    nodo* lrr = add_right(lr, val[10]);
+//    nodo* lrr = add_right(lr, val[10]); 
 
 
     /* genero il file dot */
@@ -151,6 +153,7 @@ int conta_foglie(albero t){
     if(t == NULL) return 0;
     if((t->l == NULL) && (t->r == NULL)) return 1;
     return conta_foglie(t->l) + conta_foglie(t->r);
+
 }
 /* versione alternativa 
 int conta_foglie(albero a){
@@ -159,6 +162,7 @@ int conta_foglie(albero a){
     if(a->l==NULL && a->r==NULL) count++;
     return (count + conta_foglie(a->l) + conta_foglie(a->r));
 }*/
+
 /* Verifica se esiste una foglia a destra */
 bool verifica_esistenza_foglia_destra(albero a){
     if(a == NULL) return false;
@@ -185,7 +189,35 @@ bool verifica_esistenza_due_foglie_info_val(albero a, int val){
     if(count==2) return true;
     return (verifica_esistenza_due_foglie_info_val(a->l,val) || verifica_esistenza_due_foglie_info_val(a->r, val));
 }
-/* Funzione che calcolo l'altezza dell'albero 
+
+/* senza static non funziona 
+int conta_foglie_info(albero a, int val){
+    int c = 0;
+    if(a == NULL) return 0;
+    if(a->l == NULL && a->r == NULL && a->info == val){
+        c++;  
+    }else{
+        c = c+verifica_esistenza_due_foglie_info_val(a->l, val)+verifica_esistenza_due_foglie_info_val(a->r, val);
+    }
+    return c;
+}
+
+bool verifica_esistenza_due_foglie_info_val(albero a, int val){
+    if(a == NULL) return false;
+    if(conta_foglie_info(a,val) == 2) return true;
+    return false;
+}*/
+
+// Funzione che calcola l'altezza dell'albero
+int altezza_albero(albero a){
+    if(a==NULL) return -1;
+    int hl = altezza_albero(a->l);
+    int hr = altezza_albero(a->r);
+    if(hl < hr) return hr+1;
+    return hl+1;
+}
+
+/* versione alernativa  
 int altezza_albero(albero a){
     if(a==NULL) return -1;
 
@@ -198,41 +230,30 @@ int altezza_albero(albero a){
     }
     
     return max+1;
-}
-/* versione alernativa */
-int altezza_albero(albero a){
-    if(a == NULL) return -1;
+}*/
 
-    int hleft = altezza_albero(a->l);
-    int hright = altezza_albero(a->r);
-
-    if(hleft > hright){
-        return 1 + hleft;
-    }
-    else    
-        return 1 + hright;
-}
 /* Funzione che calcola il numero dei nodi dell'albero */
 int conta_nodi(albero a){
     if(a == NULL) return 0;
     return 1 + conta_nodi(a->l) + conta_nodi(a->r);
 }
-/* Calcola il numero dei nodi con campo info uguale a 2 */
+/* Conta il numero dei nodi con campo info uguale a 2 */
 int conta_nodi_info_2(albero a){
     if(a==NULL) return 0;
     if(a->info == 2) return 1;
     return (conta_nodi_info_2(a->l) + conta_nodi_info_2(a->r));
 }
 /* Verifica se esiste un nodo con campo info pari all'altezza dell'albero */
-bool verifica_nodo_info_come_altezza(albero a, int altezza){
-    if(a==NULL) {
-        return false;
-    }
-    if(altezza == a->info) {
-        return true;
-    }
-    return (verifica_nodo_info_come_altezza(a->l,altezza) || verifica_nodo_info_come_altezza(a->r,altezza));
+bool verifica_ric(albero a, int h){
+    if(a==NULL) return false;
+    if(h == a->info) return true;
+    return (verifica_ric(a->l, h) || verifica_ric(a->r, h));
 }
+
+bool verifica_nodo_info_come_altezza(albero a){
+    return verifica_ric(a, altezza_albero(a));
+}
+
 /* Conta i nodi interni */
 int conta_nodi_interni(albero a){
     if(a == NULL) return 0;
@@ -240,6 +261,7 @@ int conta_nodi_interni(albero a){
     if(!(a->l==NULL && a->r==NULL)) count++;
     return count + conta_nodi_interni(a->l) + conta_nodi_interni(a->r);
 }
+
 /* versione alternativa 
 int conta_nodi_interni(albero a){
     if(a==NULL) return 0;
@@ -256,7 +278,22 @@ bool verifica_nodo_info_dista_root(albero a){
     if(a->info == profondo(a)) return true;
     return verifica_nodo_info_dista_root(a->l) || verifica_nodo_info_dista_root(a->r);
 }
+
 /* Funzione che verifica se esiste un nodo che ha entrambi i figli foglie */
+int is_foglia(albero a){
+    if(a == NULL) return false;
+    if(a->l == NULL && a->r == NULL) return true;
+    return false;
+}
+
+bool verifica_padri_due_foglie(albero a){
+    if(a == NULL) return false;
+    if(a->l != NULL && a->r != NULL && 
+        is_foglia(a->l) && is_foglia(a->r)) return true;
+    return verifica_padri_due_foglie(a->l) || verifica_padri_due_foglie(a->r);
+}
+
+/* alternativa 
 bool verifica_padri_due_foglie(albero t){
     if (t == NULL)
         return false;
@@ -266,24 +303,39 @@ bool verifica_padri_due_foglie(albero t){
 
     return verifica_padri_due_foglie(t->l) || verifica_padri_due_foglie(t->r);
 }
+*/
+
 /* Numero nodi con campo info pari alla distanza dalla radice */
+int conta_nodi_info_prof_ric(albero a, int p){
+    if(a==NULL) return 0;
+    int count = 0;
+    if(a->info == p) count++;
+    return count+conta_nodi_info_prof_ric(a->l, p+1)+conta_nodi_info_prof_ric(a->r, p+1);
+}
+
+int conta_nodi_info_prof(albero a){
+    return conta_nodi_info_prof_ric(a, 0);
+}
+
+/* alternativa
 int conta_nodi_info_prof_(albero a){
     if(a==NULL) return 0;
     int count = 0;
     if(a->info == profondo(a)) count++;
     return (count + conta_nodi_info_prof_(a->l) + conta_nodi_info_prof_(a->r));
 }
+*/
+
 /* Verifica se ogni nodo dell'albero ha due figli (albero completo)*/
 bool verifica_albero_completo(albero a){
     if(a==NULL) return false;
     if(a->l == NULL && a->r == NULL) return true;
     return (verifica_albero_completo(a->l) && verifica_albero_completo(a->r));
 }
-/* somma info nodi */
+
 int somma_info_nodi(albero a){
     if(a == NULL) return 0;
-    int somma = 0;
-    if(a != NULL) somma+=a->info;
+    int somma = a->info;
     return (somma + somma_info_nodi(a->l) + somma_info_nodi(a->r));
 }
 /* verifica se l'albero ha solo nodi a sinistra */
@@ -310,12 +362,14 @@ bool verifica_gemelli(albero a){
     if((a->l != NULL && a->r != NULL) && (a->l->info == a->r->info)) return true;
     return (verifica_gemelli(a->l) || verifica_gemelli(a->r));
 }
+
 /* verifica se esiste almeno un nodo itnerno con campo info uguale altezza totale dell'albero */
 bool verifica_nodo_interno_info_altezza(albero a, int h){
     if(a==NULL) return false;
     if(!(a->l==NULL && a->r==NULL) && (a->info == h)) return true;
     return (verifica_nodo_interno_info_altezza(a->l, h) || verifica_nodo_interno_info_altezza(a->r, h));
 }
+
 /* verifica se almeno un nodo foglia con campo info uguale altezza totale dell'albero */
 bool verifica_foglia_info_altezza(albero a, int h){
     if(a==NULL) return false;
@@ -373,7 +427,7 @@ void tester(albero t1){
     int conta_nodi_2 = conta_nodi_info_2(t1);
     printf("\nIl numero di nodi con valore pari a 2 é %d\n",conta_nodi_2);
 
-    bool verifica_nodo_come_altezza = verifica_nodo_info_come_altezza(t1,altezza);
+    bool verifica_nodo_come_altezza = verifica_nodo_info_come_altezza(t1);
     if(verifica_nodo_come_altezza){
         printf("\nesiste un nodo con info pari all'altezza dell'albero\n");
     }else{
@@ -397,7 +451,7 @@ void tester(albero t1){
         printf("\nnon esiste nessun nodo che ha entrambi i figli e sono foglie\n");
     }
 
-    int nodi_prof_info = conta_nodi_info_prof_(t1);
+    int nodi_prof_info = conta_nodi_info_prof(t1);
     printf("\nil numero di nodi con info pari a profondità é %d\n",nodi_prof_info);
 
     bool t_completo = verifica_albero_completo(t1);
@@ -418,7 +472,7 @@ void tester(albero t1){
     }
 
     int conta_sx = conta_nodi_sx(t1);
-    printf("\nil valore dei soli figli a sx é %d\n",conta_sx);
+    printf("\nil numero dei figli a sx é %d\n",conta_sx);
 
     bool gemelli = verifica_gemelli(t1);
     if(gemelli){
@@ -426,8 +480,7 @@ void tester(albero t1){
     }else{
         printf("\nnon esiste alcun nodo con due figli con lo stesso valore\n");
     }
-
-    bool nodo_interno_info_h = verifica_nodo_interno_info_altezza(t1,altezza);
+    bool nodo_interno_info_h = verifica_nodo_interno_info_altezza(t1, altezza);
     if(nodo_interno_info_h){
         printf("\nesiste almeno un nodo interno con info pari all'altezza dell'albero\n");
     }else{
