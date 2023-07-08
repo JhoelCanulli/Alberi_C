@@ -190,24 +190,6 @@ bool verifica_esistenza_due_foglie_info_val(albero a, int val){
     return (verifica_esistenza_due_foglie_info_val(a->l,val) || verifica_esistenza_due_foglie_info_val(a->r, val));
 }
 
-/* senza static non funziona 
-int conta_foglie_info(albero a, int val){
-    int c = 0;
-    if(a == NULL) return 0;
-    if(a->l == NULL && a->r == NULL && a->info == val){
-        c++;  
-    }else{
-        c = c+verifica_esistenza_due_foglie_info_val(a->l, val)+verifica_esistenza_due_foglie_info_val(a->r, val);
-    }
-    return c;
-}
-
-bool verifica_esistenza_due_foglie_info_val(albero a, int val){
-    if(a == NULL) return false;
-    if(conta_foglie_info(a,val) == 2) return true;
-    return false;
-}*/
-
 // Funzione che calcola l'altezza dell'albero
 int altezza_albero(albero a){
     if(a==NULL) return -1;
