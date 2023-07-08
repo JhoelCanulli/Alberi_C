@@ -6,4 +6,4 @@ Tale funzione si avvia nel main scrivendo su file utilizzato FILE* fp, sotto il 
 La conversione da dot a png viene fatta attraverso la digitazione di "dot -Tpng albero.dot -o albero.png" nella funzione system e per avere successo é necessario istallare 
 Graphviz, un software open source per la visualizzazione di grafici, compatibile per linux e windows.
 
-Il presente file é stato realizzato in una sessione di studio assieme a Claudia Borsani https://github.com/ClaBoris
+Le funzioni sugli alberi sono state realizzate e testate in una sessione di studio assieme a Claudia Borsani https://github.com/ClaBoris
